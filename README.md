@@ -1,3 +1,7 @@
+# The safe-for-work server address
+
+`https://api.chucknorris.io/jokes/random?category=dev`
+
 # Small exercises
 
 ## Create a `fetchJoke` function
