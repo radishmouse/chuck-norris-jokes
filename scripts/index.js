@@ -4,6 +4,7 @@ const jokeServerAddress = "https://api.chucknorris.io/jokes/random";
 // We'll assign it later
 let jokeContainer;
 let jokeButton;
+let multiJokeButton;
 
 function convertToJson(response) {
     console.log(response);
@@ -25,8 +26,11 @@ function rendersJokeToPage(jokeString) {
     const h1 = document.createElement('h1');
     h1.textContent = jokeString;
     // document.body.appendChild(h1);
-    jokeContainer.textContent = '';
     jokeContainer.appendChild(h1);
+}
+
+function clearJokeContainer() {
+    jokeContainer.textContent = '';
 }
 
 function fetchJoke() {
@@ -35,6 +39,14 @@ function fetchJoke() {
     // .then(convertToJson)          // Named-function version
     .then(extractJoke)
     .then(rendersJokeToPage)
+}
+
+function fetchMultipleJokes(howMany=5) {
+    let count = 0;
+    while (count < howMany) {
+        fetchJoke();
+        count += 1;
+    }
 }
 
 // const whatIsFetch = fetch(jokeServerAddress)
@@ -51,6 +63,22 @@ function createJokeButton() {
     return button;    
 }
 
+function createMultipleJokeButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Tell me A LOT of jokes!';
+    document.body.appendChild(button);
+    return button;    
+}
+
 jokeContainer = createJokeContainer();
 jokeButton = createJokeButton();
-jokeButton.addEventListener('click', fetchJoke);
+jokeButton.addEventListener('click', () => {
+    clearJokeContainer();
+    fetchJoke();
+});
+
+multiJokeButton = createMultipleJokeButton();
+multiJokeButton.addEventListener('click', () => {
+    clearJokeContainer();
+    fetchMultipleJokes();
+})
