@@ -15,8 +15,7 @@ function addressForCurrentCategory() {
         return `${jokeServerAddress}?category=${currentCategory}`;
     } else {
         return jokeServerAddress;
-    }
-    
+    }    
 }
 
 function convertToJson(response) {
@@ -60,6 +59,11 @@ function setCategory(category) {
     console.log(`you clicked ${category}`)
 }
 
+function showMeTheThings(things) {
+    console.log(things);
+    return things;
+}
+
 function addCategoryClickHandler(categoryListItems) {
     categoryListItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -82,23 +86,26 @@ function fetchCategories() {
         .then(r => r.json())
         .then(categoriesToListItems)
         .then(addCategoryClickHandler)
+        // .then(showMeTheThings)
         .then(renderCategories)
 }
 
 function fetchJoke() {
-    fetch(addressForCurrentCategory())
-        .then(r => r.json())       // Hipster version
-        // .then(convertToJson)          // Named-function version
-        .then(extractJoke)
-        .then(rendersJokeToPage)
+    return fetch(addressForCurrentCategory())
+            .then(r => r.json())       // Hipster version
+            // .then(convertToJson)          // Named-function version
+            .then(extractJoke)        
 }
 
 function fetchMultipleJokes(howMany=5) {
     let count = 0;
+    const arrayOfUnfinishedPromises = [];
     while (count < howMany) {
-        fetchJoke();
+        const aPromise = fetchJoke();
+        arrayOfUnfinishedPromises.push(aPromise);
         count += 1;
     }
+    return Promise.all(arrayOfUnfinishedPromises);
 }
 
 // const whatIsFetch = fetch(jokeServerAddress)
@@ -145,13 +152,34 @@ categoryHeader = createCategoryHeader();
 jokeButton = createJokeButton();
 jokeButton.addEventListener('click', () => {
     clearJokeContainer();
-    fetchJoke();
+    fetchJoke()
+        .then(rendersJokeToPage)
 });
 
 multiJokeButton = createMultipleJokeButton();
 multiJokeButton.addEventListener('click', () => {
-    clearJokeContainer();
-    fetchMultipleJokes();
+    clearJokeContainer();    
+    jokeContainer.textContent = "Please wait...";
+    fetchMultipleJokes()
+        .then(jokes => {
+            clearJokeContainer();
+            return jokes;
+        })
+        .then(renderBatchOfJokes);
+        // .then(showMeTheThings)
+        // .then(rendersJokeToPage)
 });
+
+function renderBatchOfJokes(arrayOfResults) {
+    console.log(arrayOfResults);
+    arrayOfResults
+        .map(rendersJokeToPage)        
+    //     .map(obj => {
+    //         console.log(obj);
+    //     })        
+    // arrayOfJokePromises
+    //     .map(extractJoke)
+    //     .map(rendersJokeToPage)
+}
 
 fetchCategories();
